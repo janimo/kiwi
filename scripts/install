@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ $WORKDIR"x" == "x" ];then
-	WORKDIR=.
+        WORKDIR=.
 fi
 
 CHROOTDIR=$WORKDIR/squash
@@ -11,32 +11,36 @@ TARGETCACHEDIR=$CHROOTDIR/var/cache/apt/archives
 COMMAND=install
 
 if [ `basename $0` == "remove" ];then
-	COMMAND="remove --purge"
+        COMMAND="remove --purge"
 fi
 
 if [ `basename $0` == "autoremove" ];then
-	COMMAND="autoremove"
+        COMMAND="autoremove"
 fi
 
 if [ `basename $0` == "login" ];then
-	COMMAND="login"
+        COMMAND="login"
 fi
 
 if [ `basename $0` == "langpurge" ];then
-	COMMAND="langpurge"
+        COMMAND="langpurge"
 fi
 
 if [ `basename $0` == "fontpurge" ];then
-	COMMAND="fontpurge"
+        COMMAND="fontpurge"
 fi
 
 if [ `basename $0` == "init" ];then
-	COMMAND="init"
+        COMMAND="init"
+fi
+
+if [ `basename $0` == "last" ];then
+        COMMAND="last"
 fi
 
 # Command line has package list
 PACKAGES=$@
-if [ "$PACKAGES" == "" -a "$COMMAND" != "autoremove" -a "$COMMAND" != "login" -a "$COMMAND" != "langpurge" -a "$COMMAND" != "fontpurge" -a "$COMMAND" != "init" ]; then
+if [ "$PACKAGES" == "" -a "$COMMAND" != "autoremove" -a "$COMMAND" != "login" -a "$COMMAND" != "langpurge" -a "$COMMAND" != "fontpurge" -a "$COMMAND" != "init" -a "$COMMAND" != "last" ]; then
  echo "No packages provided"
  exit 1
 fi
@@ -51,7 +55,7 @@ function do_chroot()
 
 function movedebs()
 {
-if [ "$COMMAND" == "install" -o "$COMMAND" == "login" -o "$COMMAND" == "init" ];then
+if [ "$COMMAND" == "install" -o "$COMMAND" == "login" -o "$COMMAND" == "init" -o "$COMMAND" == "last" ];then
   echo -n Moving debs from $1 to $2...
   for i in $1/*deb; do sudo mv $i $2; done
   echo done.
@@ -61,15 +65,17 @@ fi
 function enter_chroot()
 {
   sudo cp /etc/resolv.conf $CHROOTDIR/etc
-  do_chroot mount -t proc proc proc
-  do_chroot mount -t sysfs sys sys
-  
+  do_chroot mount -t proc proc /proc
+  do_chroot mount -t sysfs sys /sys
+  do_chroot mount -t devpts devpts /dev/pts
+
   movedebs $CACHEDIR $TARGETCACHEDIR
 }
 
 function leave_chroot()
 {
   sudo rm $CHROOTDIR/etc/resolv.conf
+  do_chroot umount devpts
   do_chroot umount proc
   do_chroot umount sys
   movedebs $TARGETCACHEDIR $CACHEDIR
@@ -77,18 +83,24 @@ function leave_chroot()
 
 enter_chroot
 if [ "$COMMAND"  == "login" ];then
-	do_chroot /bin/bash
+        do_chroot /bin/bash
 elif [ "$COMMAND"  == "init" ];then
-	do_chroot /bin/bash -c "
-        sed -i '/universe$/  s/universe/universe multiverse/; s/# deb/deb/;' /etc/apt/sources.list;
-        echo 'deb http://kiwilinux.org/archive hardy main' > /etc/apt/sources.list.d/kiwitemp.list; apt-get update; apt-get install --force-yes -y kiwilinux-settings;rm /etc/apt/sources.list.d/kiwitemp.list;
-        apt-get update; apt-get dist-upgrade -y"
+        do_chroot /bin/bash -c "
+        sed -i 's/restricted/restricted universe multiverse/;' /etc/apt/sources.list;
+        add-apt-repository --yes ppa:kiwilinux-members/release
+        apt-get update;
+        apt-get --no-install-recommends dist-upgrade -y"
 elif [ "$COMMAND"  == "langpurge" ];then
-	do_chroot /bin/bash -c "dpkg-query -W --showformat='\${Package}\n' |grep 'language-pack' |grep -v -E 'ro|hu|en|de|fr'|xargs apt-get remove --purge -y"
+        do_chroot /bin/bash -c "dpkg --get-selections|cut -f 1 |grep -E 'language-pack' | grep -v -E 'en|ro|hu|de'| xargs apt-get remove --purge -y"
+        do_chroot /bin/bash -c "dpkg --get-selections|cut -f 1 |grep -E 'firefox-locale'| xargs apt-get remove --purge -y"
 elif [ "$COMMAND"  == "fontpurge" ];then
-	do_chroot /bin/bash -c "apt-cache show ubuntu-desktop |grep Recommends |tr ',' '\n' |grep ttf |xargs apt-get remove --purge -y"
+        do_chroot /bin/bash -c "dpkg --get-selections|cut -f 1 |grep -E 'fonts-tlwg|ttf-wqy-microhei|ttf-punjabi-fonts|ttf-indic-fonts-core|fonts-takao-pgothic|fonts-kacst|fonts-nanum|fonts-khmeros|fonts-lao' |xargs apt-get remove --purge -y"
+elif [ "$COMMAND" == "last" ];then
+	do_chroot /usr/lib/lightdm/lightdm-set-defaults -s gnome-fallback
+      echo  do_chroot /bin/bash -c "/usr/share/doc/libdvdread4/install-css.sh;rm -Rf /tmp/*"
+      echo  do_chroot /bin/bash -c "dpkg -i /var/cache/apt/archives/speedtouch*"
 else
-	do_chroot apt-get -y $COMMAND $PACKAGES
+        do_chroot apt-get -y $COMMAND $PACKAGES
 fi
 leave_chroot
 

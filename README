@@ -1,0 +1,11 @@
+#This will extract the original iso, make a copy of the squashfs, install/remove things in it, then recompress it, run md5sum and mkiso
+sudo ./makekiwi workdir /path/to/orig.iso
+
+# If you want to remove/add to the ISO (as opposed to the live squashfs image) use the newly created iso dir and tweak it
+# Trim whatever you do not want, change texts, splash img, add/remove debs, remove pool/dists
+
+cd iso
+
+then sudo ./scripts/mkiso
+
+

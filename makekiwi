@@ -1,7 +1,14 @@
 #!/bin/bash
 
+DISTRO=precise
+
 if [ $# == 0 ];then
-    echo Usage: ./makekiwi builddir /path/to/image.iso 
+    echo Usage: ./makekiwi builddir /path/to/image.iso
+    exit
+fi
+
+if [ $(id -u) != 0 ];then
+    echo Use sudo
     exit
 fi
 
@@ -17,6 +24,7 @@ NEWSQ=$TM/squash
 
 if [ ! -x $NEWSQ ];then
         echo Setting up build directory $TM 
+	mkdir -p cache
 	mkdir -p $ORIG_ISO
 	mkdir -p $ORIG_SQ
 
@@ -30,20 +38,50 @@ if [ ! -x $NEWSQ ];then
         ln -s $(pwd)/cache/ $TM/cache
 fi
 
+NEWISO=iso
+if [ ! -x $NEWISO ]; then
+	rsync -av --exclude "*.squashfs" $ORIG_ISO/ $NEWISO
+fi
+
+ln -sf $(pwd)/$NEWISO $TM/iso
+
 #copy over files
 export WORKDIR=$TM
-./scripts/remove evolution-common ekiga rhythmbox scim
+export DISTRO
+./scripts/remove g++-4.6 gcc-4.6 totem-common thunderbird firefox empathy-common telepathy-{idle,gabble,salut,haze} telepathy-mission-control-5 gdb ubiquity-slideshow-ubuntu xul-ext-ubufox libgwibber2 unity-2d-*
 ./scripts/langpurge
 ./scripts/fontpurge
 ./scripts/init
-cp -a kiwibits/* $NEWSQ
-./scripts/install language-support-ro language-pack-ro language-pack-gnome-ro language-support-hu language-pack-hu language-pack-gnome-hu thunderbird-locale-ro
-./scripts/install kiwilinux-desktop 
+#cp -a kiwibits/* $NEWSQ
+
+./scripts/install flashplugin-installer gstreamer0.10-{plugins-ugly,ffmpeg,fluendo-mp3} plymouth-theme-kiwilinux unrar p7zip chromium-browser chromium-codecs-ffmpeg-extra chromium-browser-l10n pidgin vlc desktop-webmail ubiquity-slideshow-kiwilinux gnome-panel
+
+./scripts/install language-pack-{ro,hu,de} language-pack-gnome-{ro,hu,de} libreoffice-l10n-{ro,hu,de}
+./scripts/remove firefox-locale-{ro,hu,en,de}
+
+./scripts/last
 
 #remove flash tarball
 rm -rf $NEWSQ/var/cache/flashplugin-nonfree/
+#remove debconf stuff
+rm -f $NEWSQ/var/cache/debconf/*-old
+#remove apt cache
+rm -f $NEWSQ/var/cache/apt/*bin
+#remove initrd
+rm -f $NEWSQ/boot/initrd.img*
+
+rm -rf $NEWSQ/run/cups
+rm -rf $NEWSQ/root/.dbus
+rm -rf $NEWSQ/root/.wapi
+rm -f $NEWSQ/root/.bash_history
+rm -f $NEWSQ/etc/mtab
 
 #fix pppd dns order
-mv -f $NEWSQ/etc/rcS.d/S55pppd-dns $NEWSQ/etc/rcS.d/S38pppd-dns
+#mv -f $NEWSQ/etc/rcS.d/S55pppd-dns $NEWSQ/etc/rcS.d/S38pppd-dns
 
-chroot $NEWSQ /bin/sh -c "update-alternatives --set usplash-artwork.so /usr/lib/usplash/usplash-theme-kiwi.so;update-initramfs -u;rm -f /boot/initrd*bak"
+cd $TM
+../scripts/manifests
+cd ../$NEWISO
+../scripts/md5sum
+cd ..
+./scripts/mkiso

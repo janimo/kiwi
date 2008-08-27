@@ -1,0 +1,32 @@
+#!/bin/bash
+
+INITRD=$1
+WORKDIR=tmpinitrd
+
+mkdir $WORKDIR
+
+cd $WORKDIR
+
+echo Extracting original initrd
+echo $INITRD | grep 'gz'
+
+if [ $? == 0 ]; then
+    EXTRACT=gunzip
+    COMPRESS=gzip
+else
+    EXTRACT=unlzma
+    COMPRESS=lzma
+fi
+
+#extract original
+$EXTRACT < ../$INITRD | cpio -i
+
+echo Copying over new content
+cp -a ../initrdbits/* .
+
+echo Creating new initrd
+#create new initrd
+find . | cpio --quiet --dereference -o -H newc | $COMPRESS -9 > ../$(basename $INITRD)
+
+cd ..
+rm -Rf $WORKDIR

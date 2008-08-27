@@ -1,4 +1,6 @@
 #!/bin/bash
+printf $(du -sx --block-size=1 squash | cut -f1) > iso/casper/filesystem.size || true
+
 MF=iso/casper/filesystem.manifest
 chmod +w $MF
 chroot squash dpkg-query -W --showformat='${Package} ${Version}\n' > $MF
@@ -6,4 +8,4 @@ grep -v -E 'restoregrub|ubiquity|casper|discover1|os-prober|grub|gparted|jfsutil
 SQ=iso/casper/filesystem.squashfs
 rm $SQ
 mksquashfs squash $SQ
-chmod +r $SQ
+chmod 644 $SQ

@@ -1,0 +1,6 @@
+#!/bin/bash
+VER=12.08
+OUTDIR=kiwi-$VER
+mkdir -p $OUTDIR
+
+xorriso -as mkisofs -r -checksum_algorithm_iso md5,sha1 -isohybrid-mbr /usr/lib/syslinux/isohdpfx.bin -partition_offset 16 -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -V "Kiwi $VER" -o $OUTDIR/kiwi-$VER.iso iso 
