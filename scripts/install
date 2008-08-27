@@ -1,0 +1,94 @@
+#!/bin/bash
+if [ $WORKDIR"x" == "x" ];then
+	WORKDIR=.
+fi
+
+CHROOTDIR=$WORKDIR/squash
+CACHEDIR=$(pwd)/cache
+TARGETCACHEDIR=$CHROOTDIR/var/cache/apt/archives
+
+
+COMMAND=install
+
+if [ `basename $0` == "remove" ];then
+	COMMAND="remove --purge"
+fi
+
+if [ `basename $0` == "autoremove" ];then
+	COMMAND="autoremove"
+fi
+
+if [ `basename $0` == "login" ];then
+	COMMAND="login"
+fi
+
+if [ `basename $0` == "langpurge" ];then
+	COMMAND="langpurge"
+fi
+
+if [ `basename $0` == "fontpurge" ];then
+	COMMAND="fontpurge"
+fi
+
+if [ `basename $0` == "init" ];then
+	COMMAND="init"
+fi
+
+# Command line has package list
+PACKAGES=$@
+if [ "$PACKAGES" == "" -a "$COMMAND" != "autoremove" -a "$COMMAND" != "login" -a "$COMMAND" != "langpurge" -a "$COMMAND" != "fontpurge" -a "$COMMAND" != "init" ]; then
+ echo "No packages provided"
+ exit 1
+fi
+
+#trap leave_chroot QUIT INT 
+
+function do_chroot()
+{
+ echo sudo chroot $CHROOTDIR env HOME=/root LC_ALL="C" $@
+ sudo chroot $CHROOTDIR env HOME=/root LC_ALL="C" "$@"
+}
+
+function movedebs()
+{
+if [ "$COMMAND" == "install" -o "$COMMAND" == "login" -o "$COMMAND" == "init" ];then
+  echo -n Moving debs from $1 to $2...
+  for i in $1/*deb; do sudo mv $i $2; done
+  echo done.
+fi
+}
+
+function enter_chroot()
+{
+  sudo cp /etc/resolv.conf $CHROOTDIR/etc
+  do_chroot mount -t proc proc proc
+  do_chroot mount -t sysfs sys sys
+  
+  movedebs $CACHEDIR $TARGETCACHEDIR
+}
+
+function leave_chroot()
+{
+  sudo rm $CHROOTDIR/etc/resolv.conf
+  do_chroot umount proc
+  do_chroot umount sys
+  movedebs $TARGETCACHEDIR $CACHEDIR
+}
+
+enter_chroot
+if [ "$COMMAND"  == "login" ];then
+	do_chroot /bin/bash
+elif [ "$COMMAND"  == "init" ];then
+	do_chroot /bin/bash -c "
+        sed -i '/universe$/  s/universe/universe multiverse/; s/# deb/deb/;' /etc/apt/sources.list;
+        echo 'deb http://kiwilinux.org/archive hardy main' > /etc/apt/sources.list.d/kiwitemp.list; apt-get update; apt-get install --force-yes -y kiwilinux-settings;rm /etc/apt/sources.list.d/kiwitemp.list;
+        apt-get update; apt-get dist-upgrade -y"
+elif [ "$COMMAND"  == "langpurge" ];then
+	do_chroot /bin/bash -c "dpkg-query -W --showformat='\${Package}\n' |grep 'language-pack' |grep -v -E 'ro|hu|en|de|fr'|xargs apt-get remove --purge -y"
+elif [ "$COMMAND"  == "fontpurge" ];then
+	do_chroot /bin/bash -c "apt-cache show ubuntu-desktop |grep Recommends |tr ',' '\n' |grep ttf |xargs apt-get remove --purge -y"
+else
+	do_chroot apt-get -y $COMMAND $PACKAGES
+fi
+leave_chroot
+

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+MD=md5sum.txt
+find . -type f -print0 |xargs -0 md5sum >$MD
+sed -i '/isolinux/ d;/md5sum/ d' $MD

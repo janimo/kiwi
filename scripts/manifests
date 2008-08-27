@@ -1,0 +1,9 @@
+#!/bin/bash
+MF=iso/casper/filesystem.manifest
+chmod +w $MF
+chroot squash dpkg-query -W --showformat='${Package} ${Version}\n' > $MF
+grep -v -E 'restoregrub|ubiquity|casper|discover1|os-prober|grub|gparted|jfsutils|user-setup|xfsprogs|xresprobe' $MF >$MF-desktop
+SQ=iso/casper/filesystem.squashfs
+rm $SQ
+mksquashfs squash $SQ
+chmod +r $SQ

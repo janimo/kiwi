@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ $# == 0 ];then
+    echo Usage: ./makekiwi builddir /path/to/image.iso 
+    exit
+fi
+
+TM=$(pwd)/$1
+
+if [ $# == 2 ];then
+    UBUNTUISO=$2
+fi
+
+ORIG_ISO=$TM/orig_iso
+ORIG_SQ=$TM/orig_sq
+NEWSQ=$TM/squash
+
+if [ ! -x $NEWSQ ];then
+        echo Setting up build directory $TM 
+	mkdir -p $ORIG_ISO
+	mkdir -p $ORIG_SQ
+
+	umount $ORIG_SQ
+	umount $ORIG_ISO
+
+	mount -o loop $UBUNTUISO $ORIG_ISO
+	mount -o loop -t squashfs $ORIG_ISO/casper/filesystem.squashfs $ORIG_SQ
+	cp -a $ORIG_SQ $NEWSQ
+        chmod a+rx $NEWSQ
+        ln -s $(pwd)/cache/ $TM/cache
+fi
+
+#copy over files
+export WORKDIR=$TM
+./scripts/remove evolution-common ekiga rhythmbox scim
+./scripts/langpurge
+./scripts/fontpurge
+./scripts/init
+cp -a kiwibits/* $NEWSQ
+./scripts/install language-support-ro language-pack-ro language-pack-gnome-ro language-support-hu language-pack-hu language-pack-gnome-hu thunderbird-locale-ro
+./scripts/install kiwilinux-desktop 
+
+#remove flash tarball
+rm -rf $NEWSQ/var/cache/flashplugin-nonfree/
+
+#fix pppd dns order
+mv -f $NEWSQ/etc/rcS.d/S55pppd-dns $NEWSQ/etc/rcS.d/S38pppd-dns
+
+chroot $NEWSQ /bin/sh -c "update-alternatives --set usplash-artwork.so /usr/lib/usplash/usplash-theme-kiwi.so;update-initramfs -u;rm -f /boot/initrd*bak"
