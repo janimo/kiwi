@@ -1,0 +1,89 @@
+---
+layout: default
+---
+
+<div id="faq" class="content">
+
+	<h1>Overview</h1>
+	<div class="faq">Why yet another derivative?</div>
+	<p>
+	With the abundance of distributions, and the burden and confusion that <a href="http://www.ted.com/index.php/talks/view/id/93">too much choice</a> can cause, that is a very appropriate question :) The main purpose of Kiwi is promoting free software among users to whom even switching to Ubuntu is a challenge. The modifications included, which for various reasons are not on the Ubuntu CD, aim to overcome the main obstacles that we have seen novice users bump into while trying Ubuntu, such as lack of local language support on the CD, inability to easily connect to some ISP's networks and missing multimedia features out of the box. As such, with limited effort and a small amount of nonintrusive changes Kiwi is an easier to set up Ubuntu system. Switching between Kiwi and Ubuntu is simply a matter of adding or removing the extra apt sources Kiwi uses.
+	
+	</p>
+
+<div class="faq">Why call it Kiwi?</div>
+	<p>
+	It seemed like a sweet and easy to remember name, and from a certain distance, in adverse lighting conditions, the cross-section of a kiwi fruit looks like the Ubuntu logo. So it was an obvious choice even if in hindsight, it was not the most fortunate one as it caused a bit of confusion regarding the distribution's country of origin. It may imply that it is a Kiwi (from New Zealand) distro. FWIW there are also a few other software projects named Kiwi, the most popular being SUSE's derivative distro builder tool.
+
+	</p>
+
+	<h1>Details</h1>
+
+<div class="faq">Does it use Automatix or similar scripts to tune a vanilla Ubuntu?</div>
+	<p>
+	No, and it never will. All changes are done via the package system by installing existing unmodified packages from the official archives and slightly modified or new packages from an extra archive.
+
+	</p>
+
+	<div class="faq">Why not make it an Ubuntu remix?</div>
+	<p>
+	Ubuntu 'remix' derivatives are required to only use software available in the official repos. With the use of some packages that do not qualify (speedtouch, libdvdcss2), as much as I would have liked calling it Ubuntu Eastern European (or whatever) edition, it is not a fair use of the Ubuntu trademark.
+
+	</p><div class="faq">Why not have custom artwork?</div><p>
+	In the spirit of minimal and mostly functional changes, the artwork is almost identical to Ubuntu's. Among the few places that were changed are the usplash logo and the login greeter screen. This way the difference is clear and Ubuntu does not get undeserved criticism in the unlikely case of a Kiwi-only major SNAFU, but the overall feel is familiar to those already used to Ubuntu.
+
+	</p><div class="faq">What is the release schedule?</div><p>
+	Kiwi closely follows Ubuntu's release schedule. This means there's a new version every six months. In addition there may be intermediary releases based on the latest Ubuntu with package updates and Kiwi specific polishing included.
+
+	</p><div class="faq">What is the meaning of the version number?</div><p>
+	As for Ubuntu, the version number reflects the year and the month of release. The stable release of Ubuntu on which a specific Kiwi release is based on is the largest Ubuntu version number less than or equal to the Kiwi one.
+For example both Kiwi 7.04 and 7.08 were based on Ubuntu 7.04, and both Kiwi 7.10 and 8.03 on Ubuntu 7.10.
+
+	</p><div class="faq">What variants of the CD are available?</div><p>
+	As of 9.04, Kiwi is for i386, Desktop CD only and Ubuntu/GNOME based. This is unlikely to ever change.
+
+	</p><div class="faq">Which repositories do the packages come from?</div><p>
+	The regular Ubuntu repositories are used and in addition a small repository at http://kiwilinux.org, which contains packages not in the Ubuntu archives, or modifications to a handful of existing ones. The <a href="http://medibuntu.org">Medibuntu</a> repositories are added as well. Our changes are carried in Launchpad in the Kiwi team's <a href="https://launchpad.net/~kiwilinux-members/+archive">Personal Package Archive</a>.
+
+
+	</p><div class="faq">How to switch to/from Ubuntu?</div><p>
+	The main difference between Ubuntu and Kiwi is the default package selection and the addition of these package repositories:
+	<br>
+	<strong>
+	deb http://kiwilinux.org/archive jaunty main #Kiwilinux
+	<br>
+	deb-src http://kiwilinux.org/archive jaunty main #Kiwilinux
+	<br>
+	deb http://packages.medibuntu.org/ jaunty free non-free #Medibuntu
+	<br>
+	deb-src http://packages.medibuntu.org/ jaunty free non-free #Medibuntu
+	</strong>
+	<br>
+	<br>
+	
+	Install this package on Ubuntu 9.04 to set up the Kiwi and Medibuntu APT sources and GPG keys :<br> <a href="http://kiwilinux.org/archive/pool/main/k/kiwilinux-desktop/kiwilinux-settings_9.04-4_all.deb">
+http://kiwilinux.org/archive/pool/main/k/kiwilinux-desktop/kiwilinux-settings_9.04-4_all.deb</a>
+	</p>
+
+
+	</p><div class="faq">Which languages does it support?</div><p>
+	As of 9.04, full language support for English, Romanian and Hungarian are included on the CD.
+
+	</p><div class="faq"> What are the main differences from a standard Ubuntu install </div><p>
+	There is <strong>no</strong> mail client included. The restricted GStreamer plugins, encrypted DVD support and Adobe Flash are installed by default. There is a GRUB menu restoration GUI on the LiveCD. To make space for the additions Asian fonts and input methods are removed.
+
+	<h1>Contributing</h1>
+
+	If you're contributing to Ubuntu you are contributing to Kiwi and vice versa.
+
+	</p><div class="faq">Banners and promoting?</div><p>
+
+	 <a href="http://www.softwareliber.ro/poze/?gallery=Promovare%2FMediatizare%2FKiwiLinux"> Here's </a> an initial set of Kiwi graphics.
+
+	</p><div class="faq">Who develops it?</div><p>
+	Kiwi was started by Ubuntu core developer Jani Monoses, and received several contributions in the form
+	of patches, packaging, artwork, hosting facilities from members of the Software Freedom Group of Cluj and Romanian Ubuntu team.
+
+	</p><div class="faq">Where do I file bugs?</div><p>
+	To Launchpad on the specific package you think is buggy, just as for Ubuntu. 
+	</div>

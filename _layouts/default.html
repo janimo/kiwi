@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+
+<title>Kiwi Linux</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<link rel="stylesheet" href="/assets/css/kiwi.css" type="text/css" media="screen">
+
+</head>
+
+<body>
+<div id="container">
+	<div id="header">
+		<div id="button" >
+			<a href="download.html"></a>
+		</div>
+		<div style="display:none">
+			<img src="/assets/images/download_hover.png" border="0">
+		</div>
+		<div id="title" >
+			<img src="/assets/images/kiwi_logo_en.png" border="0">
+		</div>
+        <div id="langs">
+            <h1>
+			<a href="/ro">ro</a> |
+			<a href="/hu">hu</a> |
+            <a href="/en">en</a>
+            </h1>
+		</div>
+	</div>
+
+	<div id="navigation">
+    {%if page.language == "hu" %}
+		<a href="index.html">Kiwi</a>
+		<a href="news.html">Hírek</a>
+		<a href="developers.html">Fejlesztés </a>
+        <a href="contact.html">Kontakt</a>
+    {%elsif page.language == "ro" %}
+		<a href="/ro/index.html"> Start </a>
+		<a href="/ro/news.html"> Știri </a>
+		<a href="/ro/developers.html"> Contribuții</a>
+		<a href="/ro/contact.html"> Contact </a>
+		<a href="http://janimo.blogspot.com/search/label/kiwi"> Blog</a>
+    {%else %}
+		<a href="index.html"> About</a>
+		<a href="news.html"> News </a>
+		<a href="faq.html"> FAQ </a>
+		<a href="developers.html"> Developers</a>
+        <a href="contact.html"> Contact </a>
+    {% endif %}
+    </div>
+    {{ content }}
+</div>
+
+</body>
+</html>
