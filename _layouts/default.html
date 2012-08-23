@@ -13,7 +13,7 @@
 <div id="container">
 	<div id="header">
 		<div id="button" >
-			<a href="download.html"></a>
+			<a href="http://ftp.astral.ro/distros/kiwi/kiwi-12.08/kiwi-12.08.iso"></a>
 		</div>
 		<div style="display:none">
 			<img src="/assets/images/download_hover.png" border="0">
@@ -33,21 +33,14 @@
 	<div id="navigation">
     {%if page.language == "hu" %}
 		<a href="index.html">Kiwi</a>
-		<a href="news.html">Hírek</a>
-		<a href="developers.html">Fejlesztés </a>
-        <a href="contact.html">Kontakt</a>
+		<a href="contact.html">Kontakt</a>
     {%elsif page.language == "ro" %}
 		<a href="/ro/index.html"> Start </a>
-		<a href="/ro/news.html"> Știri </a>
-		<a href="/ro/developers.html"> Contribuții</a>
 		<a href="/ro/contact.html"> Contact </a>
-		<a href="http://janimo.blogspot.com/search/label/kiwi"> Blog</a>
     {%else %}
 		<a href="index.html"> About</a>
-		<a href="news.html"> News </a>
 		<a href="faq.html"> FAQ </a>
-		<a href="developers.html"> Developers</a>
-        <a href="contact.html"> Contact </a>
+		<a href="contact.html"> Contact </a>
     {% endif %}
     </div>
     {{ content }}
